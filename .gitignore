@@ -2,6 +2,7 @@ HELP.md
 llave.md
 examen_parcial_u1_lp2_caso_EduAndes.md
 ~$*
+*.doc
 *.docx
 target/
 .mvn/wrapper/maven-wrapper.jar
