@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pe.edu.upeu.MatriculaBackend.dto.MatriculadosPorCursoDTO;
+import pe.edu.upeu.MatriculaBackend.dto.reporte.MatriculadosPorCursoDTO;
 import pe.edu.upeu.MatriculaBackend.service.service.ReporteService;
 
 import java.util.List;
