@@ -35,3 +35,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### AI & Agent Context / Skills ###
+.agent/
+.agents/
+AGENTS.md
+GEMINI.md
+auditoria_*.md
+*.log
+
