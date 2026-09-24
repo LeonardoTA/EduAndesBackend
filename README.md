@@ -10,7 +10,6 @@ El proyecto separa responsabilidades por capas:
 - `service`: reglas de negocio y transacciones. La matrícula valida estado, carrera, vacantes, unicidad por periodo y el límite de 20 créditos antes de guardar cabecera y detalles.
 - `repository`: persistencia JPA, filtros y consultas agregadas de reportes.
 - `entity`: modelo relacional; `dto`: objetos de entrada/salida sin exponer entidades.
-- `config` y `exception`: CORS/OpenAPI y manejo uniforme de errores.
 
 `Matricula` y sus detalles se guardan dentro de una única transacción. Cada detalle conserva créditos y costo históricos; el costo por crédito se configura en `matricula.costo-credito`.
 
