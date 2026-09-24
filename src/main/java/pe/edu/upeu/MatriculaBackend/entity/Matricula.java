@@ -13,7 +13,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import pe.edu.upeu.MatriculaBackend.enums.EstadoMatricula;
 
 import java.math.BigDecimal;
@@ -23,7 +28,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "matriculas")
-public class Matricula extends EntidadAuditable {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Matricula {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,11 +61,26 @@ public class Matricula extends EntidadAuditable {
     @OneToMany(mappedBy = "matricula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleMatricula> detalles = new ArrayList<>();
 
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+
     @PrePersist
-    protected void asignarFecha() {
+    public void prePersist() {
+        this.fechaCreacion = LocalDateTime.now();
         if (fecha == null) {
             fecha = LocalDateTime.now();
         }
+        if (estado == null) {
+            estado = EstadoMatricula.REGISTRADA;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.fechaModificacion = LocalDateTime.now();
     }
 
     public void agregarDetalle(DetalleMatricula detalle) {
@@ -70,73 +94,6 @@ public class Matricula extends EntidadAuditable {
     public void removerDetalle(DetalleMatricula detalle) {
         if (detalles.remove(detalle)) {
             detalle.setMatricula(null);
-        }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(LocalDateTime fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getPeriodo() {
-        return periodo;
-    }
-
-    public void setPeriodo(String periodo) {
-        this.periodo = periodo;
-    }
-
-    public Estudiante getEstudiante() {
-        return estudiante;
-    }
-
-    public void setEstudiante(Estudiante estudiante) {
-        this.estudiante = estudiante;
-    }
-
-    public EstadoMatricula getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoMatricula estado) {
-        this.estado = estado;
-    }
-
-    public Integer getTotalCreditos() {
-        return totalCreditos;
-    }
-
-    public void setTotalCreditos(Integer totalCreditos) {
-        this.totalCreditos = totalCreditos;
-    }
-
-    public BigDecimal getMontoTotal() {
-        return montoTotal;
-    }
-
-    public void setMontoTotal(BigDecimal montoTotal) {
-        this.montoTotal = montoTotal;
-    }
-
-    public List<DetalleMatricula> getDetalles() {
-        return detalles;
-    }
-
-    public void setDetalles(List<DetalleMatricula> detalles) {
-        this.detalles.clear();
-        if (detalles != null) {
-            detalles.forEach(this::agregarDetalle);
         }
     }
 }

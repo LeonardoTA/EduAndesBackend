@@ -5,10 +5,18 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MatriculaRequestDTO {
 
     @NotNull(message = "El estudiante es obligatorio")
@@ -22,40 +30,4 @@ public class MatriculaRequestDTO {
     @Valid
     @NotEmpty(message = "La matricula debe incluir al menos un curso")
     private List<DetalleMatriculaRequestDTO> detalles = new ArrayList<>();
-
-    public MatriculaRequestDTO() {
-    }
-
-    public MatriculaRequestDTO(
-            Long estudianteId,
-            String periodo,
-            List<DetalleMatriculaRequestDTO> detalles) {
-        this.estudianteId = estudianteId;
-        this.periodo = periodo;
-        this.detalles = detalles;
-    }
-
-    public Long getEstudianteId() {
-        return estudianteId;
-    }
-
-    public void setEstudianteId(Long estudianteId) {
-        this.estudianteId = estudianteId;
-    }
-
-    public String getPeriodo() {
-        return periodo;
-    }
-
-    public void setPeriodo(String periodo) {
-        this.periodo = periodo;
-    }
-
-    public List<DetalleMatriculaRequestDTO> getDetalles() {
-        return detalles;
-    }
-
-    public void setDetalles(List<DetalleMatriculaRequestDTO> detalles) {
-        this.detalles = detalles;
-    }
 }

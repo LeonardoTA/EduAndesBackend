@@ -3,6 +3,15 @@ package pe.edu.upeu.MatriculaBackend.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CarreraRequestDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
@@ -14,37 +23,4 @@ public class CarreraRequestDTO {
 
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
-
-    public CarreraRequestDTO() {
-    }
-
-    public CarreraRequestDTO(String nombre, String descripcion, Boolean estado) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.estado = estado;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
 }
