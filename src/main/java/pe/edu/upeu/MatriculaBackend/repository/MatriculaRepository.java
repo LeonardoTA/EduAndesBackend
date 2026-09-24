@@ -1,9 +1,10 @@
 package pe.edu.upeu.MatriculaBackend.repository;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 import pe.edu.upeu.MatriculaBackend.entity.Matricula;
 import pe.edu.upeu.MatriculaBackend.enums.EstadoMatricula;
 
@@ -20,11 +21,40 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
 
     boolean existsByDetallesCursoId(Long cursoId);
 
-    @EntityGraph(attributePaths = {"estudiante", "detalles", "detalles.curso"})
-    Optional<Matricula> findOneById(Long id);
+    @Query("""
+            select distinct m
+              from Matricula m
+              join fetch m.estudiante
+              left join fetch m.detalles d
+              left join fetch d.curso
+             where m.id = :id
+            """)
+    Optional<Matricula> findOneById(@Param("id") Long id);
 
-    @EntityGraph(attributePaths = {"estudiante", "detalles", "detalles.curso"})
-    List<Matricula> findByPeriodo(String periodo);
+    @Query("""
+            select distinct m
+              from Matricula m
+              join fetch m.estudiante
+              left join fetch m.detalles d
+              left join fetch d.curso
+             order by m.fecha desc, m.id desc
+            """)
+    List<Matricula> findAllConDetalles();
+
+    @Query("""
+            select distinct m
+              from Matricula m
+              join fetch m.estudiante
+              left join fetch m.detalles d
+              left join fetch d.curso
+             where m.periodo = :periodo
+             order by m.fecha desc, m.id desc
+            """)
+    List<Matricula> findByPeriodo(@Param("periodo") String periodo);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select m from Matricula m where m.id = :id")
+    Optional<Matricula> findByIdForUpdate(@Param("id") Long id);
 
     @Query("""
             select c.codigo as codigo,
@@ -38,7 +68,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
                and m.periodo = :periodo
                and (:carreraId is null or c.carrera.id = :carreraId)
              group by c.codigo, c.nombre
-             order by c.nombre asc
+             order by c.codigo asc
             """)
     List<MatriculadosPorCursoProjection> findReporteMatriculadosPorCurso(
             @Param("periodo") String periodo,
