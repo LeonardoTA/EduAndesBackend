@@ -8,11 +8,23 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cursos")
-public class Curso extends EntidadAuditable {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Curso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,67 +52,22 @@ public class Curso extends EntidadAuditable {
     @JoinColumn(name = "carrera_id", nullable = false)
     private Carrera carrera;
 
-    public Long getId() {
-        return id;
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+
+    @PrePersist
+    public void prePersist() {
+        this.fechaCreacion = LocalDateTime.now();
+        if (estado == null) {
+            estado = true;
+        }
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Integer getCreditos() {
-        return creditos;
-    }
-
-    public void setCreditos(Integer creditos) {
-        this.creditos = creditos;
-    }
-
-    public Integer getCiclo() {
-        return ciclo;
-    }
-
-    public void setCiclo(Integer ciclo) {
-        this.ciclo = ciclo;
-    }
-
-    public Integer getVacantes() {
-        return vacantes;
-    }
-
-    public void setVacantes(Integer vacantes) {
-        this.vacantes = vacantes;
-    }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
-
-    public Carrera getCarrera() {
-        return carrera;
-    }
-
-    public void setCarrera(Carrera carrera) {
-        this.carrera = carrera;
+    @PreUpdate
+    public void preUpdate() {
+        this.fechaModificacion = LocalDateTime.now();
     }
 }

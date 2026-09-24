@@ -6,6 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class EstudianteRequestDTO {
 
     @NotBlank(message = "El código es obligatorio")
@@ -35,80 +44,4 @@ public class EstudianteRequestDTO {
     @NotNull(message = "La carrera es obligatoria")
     @Positive(message = "La carrera debe tener un identificador válido")
     private Long carreraId;
-
-    public EstudianteRequestDTO() {
-    }
-
-    public EstudianteRequestDTO(
-            String codigo,
-            String dni,
-            String nombres,
-            String apellidos,
-            String email,
-            Boolean estado,
-            Long carreraId) {
-        this.codigo = codigo;
-        this.dni = dni;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.email = email;
-        this.estado = estado;
-        this.carreraId = carreraId;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
-
-    public Long getCarreraId() {
-        return carreraId;
-    }
-
-    public void setCarreraId(Long carreraId) {
-        this.carreraId = carreraId;
-    }
 }
