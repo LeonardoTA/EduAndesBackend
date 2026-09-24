@@ -1,4 +1,4 @@
-package pe.edu.upeu.MatriculaBackend.dto;
+package pe.edu.upeu.MatriculaBackend.dto.reporte;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

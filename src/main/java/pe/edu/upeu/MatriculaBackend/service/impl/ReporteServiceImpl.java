@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.upeu.MatriculaBackend.dto.MatriculadosPorCursoDTO;
+import pe.edu.upeu.MatriculaBackend.dto.reporte.MatriculadosPorCursoDTO;
 import pe.edu.upeu.MatriculaBackend.repository.MatriculaRepository;
 import pe.edu.upeu.MatriculaBackend.service.service.ReporteService;
 
