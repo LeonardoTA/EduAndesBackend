@@ -10,6 +10,7 @@ import pe.edu.upeu.MatriculaBackend.dto.CarreraResponseDTO;
 import pe.edu.upeu.MatriculaBackend.entity.Carrera;
 import pe.edu.upeu.MatriculaBackend.exception.RecursoNoEncontradoException;
 import pe.edu.upeu.MatriculaBackend.exception.ReglaNegocioException;
+import pe.edu.upeu.MatriculaBackend.mapper.CarreraMapper;
 import pe.edu.upeu.MatriculaBackend.repository.CarreraRepository;
 import pe.edu.upeu.MatriculaBackend.repository.CursoRepository;
 import pe.edu.upeu.MatriculaBackend.service.service.CarreraService;
@@ -34,10 +35,10 @@ public class CarreraServiceImpl implements CarreraService {
         validarNombreDisponible(nombre, null);
 
         Carrera carrera = new Carrera();
-        copiarDatos(request, carrera, nombre);
+        CarreraMapper.fromRequest(request, carrera);
         Carrera guardada = carreraRepository.save(carrera);
         log.info("Carrera creada con id {}", guardada.getId());
-        return toResponse(guardada);
+        return CarreraMapper.toResponse(guardada);
     }
 
     @Override
@@ -47,16 +48,16 @@ public class CarreraServiceImpl implements CarreraService {
         String nombre = normalizarNombre(request.getNombre());
         validarNombreDisponible(nombre, id);
 
-        copiarDatos(request, carrera, nombre);
+        CarreraMapper.fromRequest(request, carrera);
         Carrera actualizada = carreraRepository.save(carrera);
         log.info("Carrera actualizada con id {}", id);
-        return toResponse(actualizada);
+        return CarreraMapper.toResponse(actualizada);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CarreraResponseDTO read(Long id) {
-        return toResponse(buscarEntidad(id));
+        return CarreraMapper.toResponse(buscarEntidad(id));
     }
 
     @Override
@@ -74,7 +75,7 @@ public class CarreraServiceImpl implements CarreraService {
     @Override
     @Transactional(readOnly = true)
     public List<CarreraResponseDTO> readAll() {
-        return carreraRepository.findAll().stream().map(this::toResponse).toList();
+        return carreraRepository.findAll().stream().map(CarreraMapper::toResponse).toList();
     }
 
     private Carrera buscarEntidad(Long id) {
@@ -92,32 +93,7 @@ public class CarreraServiceImpl implements CarreraService {
         }
     }
 
-    private void copiarDatos(CarreraRequestDTO request, Carrera carrera, String nombre) {
-        carrera.setNombre(nombre);
-        carrera.setDescripcion(normalizarOpcional(request.getDescripcion()));
-        carrera.setEstado(request.getEstado());
-    }
-
     private String normalizarNombre(String valor) {
         return valor.trim();
-    }
-
-    private String normalizarOpcional(String valor) {
-        if (valor == null) {
-            return null;
-        }
-        String normalizado = valor.trim();
-        return normalizado.isEmpty() ? null : normalizado;
-    }
-
-    private CarreraResponseDTO toResponse(Carrera carrera) {
-        CarreraResponseDTO response = new CarreraResponseDTO();
-        response.setId(carrera.getId());
-        response.setNombre(carrera.getNombre());
-        response.setDescripcion(carrera.getDescripcion());
-        response.setEstado(carrera.getEstado());
-        response.setFechaCreacion(carrera.getFechaCreacion());
-        response.setFechaModificacion(carrera.getFechaModificacion());
-        return response;
     }
 }
