@@ -16,6 +16,7 @@ import pe.edu.upeu.MatriculaBackend.entity.Carrera;
 import pe.edu.upeu.MatriculaBackend.entity.Curso;
 import pe.edu.upeu.MatriculaBackend.exception.RecursoNoEncontradoException;
 import pe.edu.upeu.MatriculaBackend.exception.ReglaNegocioException;
+import pe.edu.upeu.MatriculaBackend.mapper.CursoMapper;
 import pe.edu.upeu.MatriculaBackend.repository.CarreraRepository;
 import pe.edu.upeu.MatriculaBackend.repository.CursoRepository;
 import pe.edu.upeu.MatriculaBackend.repository.MatriculaRepository;
@@ -48,10 +49,10 @@ public class CursoServiceImpl implements CursoService {
         Carrera carrera = buscarCarrera(request.getCarreraId());
 
         Curso curso = new Curso();
-        copiarDatos(request, curso, carrera, codigo);
+        CursoMapper.fromRequest(request, curso, carrera);
         Curso guardado = cursoRepository.save(curso);
         log.info("Curso creado con id {}", guardado.getId());
-        return toResponse(guardado);
+        return CursoMapper.toResponse(guardado);
     }
 
     @Override
@@ -62,16 +63,16 @@ public class CursoServiceImpl implements CursoService {
         validarCodigoDisponible(codigo, id);
         Carrera carrera = buscarCarrera(request.getCarreraId());
 
-        copiarDatos(request, curso, carrera, codigo);
+        CursoMapper.fromRequest(request, curso, carrera);
         Curso actualizado = cursoRepository.save(curso);
         log.info("Curso actualizado con id {}", id);
-        return toResponse(actualizado);
+        return CursoMapper.toResponse(actualizado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CursoResponseDTO read(Long id) {
-        return toResponse(buscarEntidad(id));
+        return CursoMapper.toResponse(buscarEntidad(id));
     }
 
     @Override
@@ -90,7 +91,7 @@ public class CursoServiceImpl implements CursoService {
     @Transactional(readOnly = true)
     public List<CursoResponseDTO> readAll() {
         return cursoRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre")).stream()
-                .map(this::toResponse)
+                .map(CursoMapper::toResponse)
                 .toList();
     }
 
@@ -100,7 +101,7 @@ public class CursoServiceImpl implements CursoService {
         buscarCarrera(carreraId);
         return cursoRepository.findByCarreraId(carreraId).stream()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER))
-                .map(this::toResponse)
+                .map(CursoMapper::toResponse)
                 .toList();
     }
 
@@ -134,7 +135,7 @@ public class CursoServiceImpl implements CursoService {
         }
 
         return cursoRepository.findAll(filtros, Sort.by(sentido, campoOrden)).stream()
-                .map(this::toResponse)
+                .map(CursoMapper::toResponse)
                 .toList();
     }
 
@@ -176,29 +177,4 @@ public class CursoServiceImpl implements CursoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrera no encontrada con id " + id));
     }
 
-    private void copiarDatos(CursoRequestDTO request, Curso curso, Carrera carrera, String codigo) {
-        curso.setCodigo(codigo);
-        curso.setNombre(request.getNombre().trim());
-        curso.setCreditos(request.getCreditos());
-        curso.setCiclo(request.getCiclo());
-        curso.setVacantes(request.getVacantes());
-        curso.setEstado(request.getEstado());
-        curso.setCarrera(carrera);
-    }
-
-    private CursoResponseDTO toResponse(Curso curso) {
-        CursoResponseDTO response = new CursoResponseDTO();
-        response.setId(curso.getId());
-        response.setCodigo(curso.getCodigo());
-        response.setNombre(curso.getNombre());
-        response.setCreditos(curso.getCreditos());
-        response.setCiclo(curso.getCiclo());
-        response.setVacantes(curso.getVacantes());
-        response.setEstado(curso.getEstado());
-        response.setCarreraId(curso.getCarrera().getId());
-        response.setCarreraNombre(curso.getCarrera().getNombre());
-        response.setFechaCreacion(curso.getFechaCreacion());
-        response.setFechaModificacion(curso.getFechaModificacion());
-        return response;
-    }
 }
