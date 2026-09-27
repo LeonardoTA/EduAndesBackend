@@ -1,57 +1,44 @@
 # EduAndes Backend
 
-API REST de matrícula académica construida con Java 21, Spring Boot 4, Maven y Oracle. Expone recursos versionados bajo `/api/v1` y documenta el contrato en OpenAPI.
+API REST para la matrícula académica de EduAndes, desarrollada con Java 21, Spring Boot 4, Maven y Oracle.
 
-## Arquitectura
+## Componentes
 
-El proyecto separa responsabilidades por capas:
+- CRUD de carreras, cursos y estudiantes.
+- Matrículas con detalle, validación de vacantes, carrera, periodo y límite de 20 créditos.
+- Búsqueda de cursos y reporte de matriculados por curso.
+- DTO, mappers, validación, transacciones, manejo uniforme de errores, CORS y OpenAPI.
 
-- `controller`: contrato HTTP, Bean Validation y códigos de respuesta.
-- `service`: reglas de negocio y transacciones. La matrícula valida estado, carrera, vacantes, unicidad por periodo y el límite de 20 créditos antes de guardar cabecera y detalles.
-- `repository`: persistencia JPA, filtros y consultas agregadas de reportes.
-- `entity`: modelo relacional; `dto`: objetos de entrada/salida sin exponer entidades.
-- `config` y `exception`: CORS/OpenAPI y manejo uniforme de errores.
+## Ejecución
 
-`Matricula` y sus detalles se guardan dentro de una única transacción. Cada detalle conserva créditos y costo históricos; el costo por crédito se configura en `matricula.costo-credito`.
-
-## Perfiles
-
-- `dev` (predeterminado): puerto `8081`, Oracle local, `ddl-auto: update`, SQL y Swagger habilitados.
-- `prod`: puerto configurable, `ddl-auto: validate`, credenciales obligatorias por entorno y Swagger deshabilitado.
-
-Variables admitidas: `SPRING_PROFILES_ACTIVE`, `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` y, en producción, `SERVER_PORT`.
-
-## Oracle y datos semilla
-
-La configuración local predeterminada usa `jdbc:oracle:thin:@//localhost:1521/XEPDB1`, usuario `eduandes` y contraseña `eduandes`. Un administrador puede preparar el esquema así:
-
-```sql
-CREATE USER eduandes IDENTIFIED BY eduandes;
-GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE TO eduandes;
-ALTER USER eduandes QUOTA UNLIMITED ON USERS;
-```
-
-Arranque primero la API para que Hibernate cree las tablas y luego ejecute [datos_semilla.sql](datos_semilla.sql) conectado como `eduandes`. El script limpia los datos funcionales, carga 3 carreras, 12 cursos y 6 estudiantes, y deja los identificadores requeridos por los casos de demostración.
-
-## Ejecución y verificación
-
-Con Oracle disponible:
+El perfil `dev` es el predeterminado. Usa el puerto `8081` y Oracle en `jdbc:oracle:thin:@//localhost:1522/FREEPDB1` con las variables `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`.
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-En Windows PowerShell use `./mvnw.cmd spring-boot:run`. Después del arranque:
+En Windows PowerShell:
 
-- Health: `http://localhost:8081/api/v1/health`
+```powershell
+./mvnw.cmd spring-boot:run
+```
+
+## Recursos
+
+- Health: `GET /api/v1/health`
+- Carreras: `/api/v1/carreras`
+- Cursos: `/api/v1/cursos` y `/api/v1/cursos/buscar`
+- Estudiantes: `/api/v1/estudiantes`
+- Matrículas: `/api/v1/matriculas`
+- Reporte: `GET /api/v1/reportes/matriculados-por-curso`
 - Swagger UI: `http://localhost:8081/swagger-ui.html`
-- Pruebas automatizadas: `./mvnw test` (o `./mvnw.cmd test` en Windows)
 
-Importe [postman/EduAndes.postman_collection.json](postman/EduAndes.postman_collection.json) en Postman y ejecute la colección completa, en orden, sobre una base recién cargada. La variable `baseUrl` ya apunta a `http://localhost:8081`; CP06 guarda el identificador de la matrícula que CP13 anula.
+Ejecuta [datos_semilla.sql](datos_semilla.sql) sobre Oracle antes de probar la colección de [Postman](postman/EduAndes.postman_collection.json).
 
-Para producción:
+## Pruebas
 
 ```bash
-SPRING_PROFILES_ACTIVE=prod DB_URL='jdbc:oracle:thin:@//host:1521/servicio' \
-DB_USERNAME='usuario' DB_PASSWORD='secreto' ./mvnw spring-boot:run
+./mvnw test
 ```
+
+En producción, activa el perfil `prod`; requiere `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` y, opcionalmente, `SERVER_PORT`.
