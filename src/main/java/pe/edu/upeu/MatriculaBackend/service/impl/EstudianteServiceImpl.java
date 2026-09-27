@@ -1,7 +1,6 @@
 package pe.edu.upeu.MatriculaBackend.service.impl;
 
 import java.util.List;
-import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -13,6 +12,7 @@ import pe.edu.upeu.MatriculaBackend.entity.Carrera;
 import pe.edu.upeu.MatriculaBackend.entity.Estudiante;
 import pe.edu.upeu.MatriculaBackend.exception.RecursoNoEncontradoException;
 import pe.edu.upeu.MatriculaBackend.exception.ReglaNegocioException;
+import pe.edu.upeu.MatriculaBackend.mapper.EstudianteMapper;
 import pe.edu.upeu.MatriculaBackend.repository.CarreraRepository;
 import pe.edu.upeu.MatriculaBackend.repository.EstudianteRepository;
 import pe.edu.upeu.MatriculaBackend.service.service.EstudianteService;
@@ -41,10 +41,10 @@ public class EstudianteServiceImpl implements EstudianteService {
         Carrera carrera = buscarCarrera(request.getCarreraId());
 
         Estudiante estudiante = new Estudiante();
-        copiarDatos(request, estudiante, carrera, codigo, dni);
+        EstudianteMapper.fromRequest(request, estudiante, carrera);
         Estudiante guardado = estudianteRepository.save(estudiante);
         log.info("Estudiante creado con id {}", guardado.getId());
-        return toResponse(guardado);
+        return EstudianteMapper.toResponse(guardado);
     }
 
     @Override
@@ -56,16 +56,16 @@ public class EstudianteServiceImpl implements EstudianteService {
         validarUnicidad(codigo, dni, id);
         Carrera carrera = buscarCarrera(request.getCarreraId());
 
-        copiarDatos(request, estudiante, carrera, codigo, dni);
+        EstudianteMapper.fromRequest(request, estudiante, carrera);
         Estudiante actualizado = estudianteRepository.save(estudiante);
         log.info("Estudiante actualizado con id {}", id);
-        return toResponse(actualizado);
+        return EstudianteMapper.toResponse(actualizado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public EstudianteResponseDTO read(Long id) {
-        return toResponse(buscarEntidad(id));
+        return EstudianteMapper.toResponse(buscarEntidad(id));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class EstudianteServiceImpl implements EstudianteService {
     @Transactional(readOnly = true)
     public List<EstudianteResponseDTO> readAll() {
         return estudianteRepository.findAll(Sort.by(Sort.Direction.ASC, "apellidos", "nombres")).stream()
-                .map(this::toResponse)
+                .map(EstudianteMapper::toResponse)
                 .toList();
     }
 
@@ -112,34 +112,4 @@ public class EstudianteServiceImpl implements EstudianteService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrera no encontrada con id " + id));
     }
 
-    private void copiarDatos(
-            EstudianteRequestDTO request,
-            Estudiante estudiante,
-            Carrera carrera,
-            String codigo,
-            String dni) {
-        estudiante.setCodigo(codigo);
-        estudiante.setDni(dni);
-        estudiante.setNombres(request.getNombres().trim());
-        estudiante.setApellidos(request.getApellidos().trim());
-        estudiante.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
-        estudiante.setEstado(request.getEstado());
-        estudiante.setCarrera(carrera);
-    }
-
-    private EstudianteResponseDTO toResponse(Estudiante estudiante) {
-        EstudianteResponseDTO response = new EstudianteResponseDTO();
-        response.setId(estudiante.getId());
-        response.setCodigo(estudiante.getCodigo());
-        response.setDni(estudiante.getDni());
-        response.setNombres(estudiante.getNombres());
-        response.setApellidos(estudiante.getApellidos());
-        response.setEmail(estudiante.getEmail());
-        response.setEstado(estudiante.getEstado());
-        response.setCarreraId(estudiante.getCarrera().getId());
-        response.setCarreraNombre(estudiante.getCarrera().getNombre());
-        response.setFechaCreacion(estudiante.getFechaCreacion());
-        response.setFechaModificacion(estudiante.getFechaModificacion());
-        return response;
-    }
 }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upeu.MatriculaBackend.dto.DetalleMatriculaRequestDTO;
-import pe.edu.upeu.MatriculaBackend.dto.DetalleMatriculaResponseDTO;
 import pe.edu.upeu.MatriculaBackend.dto.MatriculaRequestDTO;
 import pe.edu.upeu.MatriculaBackend.dto.MatriculaResponseDTO;
 import pe.edu.upeu.MatriculaBackend.entity.Curso;
@@ -16,6 +15,7 @@ import pe.edu.upeu.MatriculaBackend.entity.Matricula;
 import pe.edu.upeu.MatriculaBackend.enums.EstadoMatricula;
 import pe.edu.upeu.MatriculaBackend.exception.RecursoNoEncontradoException;
 import pe.edu.upeu.MatriculaBackend.exception.ReglaNegocioException;
+import pe.edu.upeu.MatriculaBackend.mapper.MatriculaMapper;
 import pe.edu.upeu.MatriculaBackend.repository.CursoRepository;
 import pe.edu.upeu.MatriculaBackend.repository.EstudianteRepository;
 import pe.edu.upeu.MatriculaBackend.repository.MatriculaRepository;
@@ -95,20 +95,20 @@ public class MatriculaServiceImpl implements MatriculaService {
                 guardada.getId(),
                 estudiante.getId(),
                 request.getPeriodo());
-        return toResponse(guardada);
+        return MatriculaMapper.toResponse(guardada);
     }
 
     @Override
     @Transactional(readOnly = true)
     public MatriculaResponseDTO read(Long id) {
-        return toResponse(buscarConDetalles(id));
+        return MatriculaMapper.toResponse(buscarConDetalles(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<MatriculaResponseDTO> readAll() {
         return matriculaRepository.findAllConDetalles().stream()
-                .map(this::toResponse)
+                .map(MatriculaMapper::toResponse)
                 .toList();
     }
 
@@ -139,7 +139,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         Matricula anulada = matriculaRepository.saveAndFlush(matricula);
 
         log.info("Matricula {} anulada; se devolvieron {} vacantes", id, detalles.size());
-        return toResponse(anulada);
+        return MatriculaMapper.toResponse(anulada);
     }
 
     private void validarEstudianteActivo(Estudiante estudiante) {
@@ -232,34 +232,4 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Matricula no encontrada con id " + id));
     }
 
-    private MatriculaResponseDTO toResponse(Matricula matricula) {
-        MatriculaResponseDTO response = new MatriculaResponseDTO();
-        response.setId(matricula.getId());
-        response.setFecha(matricula.getFecha());
-        response.setPeriodo(matricula.getPeriodo());
-        response.setEstudianteId(matricula.getEstudiante().getId());
-        response.setEstudianteCodigo(matricula.getEstudiante().getCodigo());
-        response.setEstudianteNombre(
-                matricula.getEstudiante().getNombres() + " " + matricula.getEstudiante().getApellidos());
-        response.setEstado(matricula.getEstado());
-        response.setTotalCreditos(matricula.getTotalCreditos());
-        response.setMontoTotal(matricula.getMontoTotal().setScale(2, RoundingMode.HALF_UP));
-        response.setDetalles(matricula.getDetalles().stream()
-                .map(this::toDetalleResponse)
-                .toList());
-        response.setFechaCreacion(matricula.getFechaCreacion());
-        response.setFechaModificacion(matricula.getFechaModificacion());
-        return response;
-    }
-
-    private DetalleMatriculaResponseDTO toDetalleResponse(DetalleMatricula detalle) {
-        Curso curso = detalle.getCurso();
-        return new DetalleMatriculaResponseDTO(
-                detalle.getId(),
-                curso.getId(),
-                curso.getCodigo(),
-                curso.getNombre(),
-                detalle.getCreditos(),
-                detalle.getCosto().setScale(2, RoundingMode.HALF_UP));
-    }
 }
